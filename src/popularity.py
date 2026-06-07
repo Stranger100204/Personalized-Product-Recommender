@@ -6,20 +6,17 @@ df = pd.read_csv(
     nrows=500000
 )
 
-
 def get_popular_products(top_n=10):
 
-    top_products = (
+    popular = (
         df[df["event_type"] == "purchase"]
         .groupby("product_id")
         .size()
         .sort_values(ascending=False)
         .head(top_n)
-        .index
-        .tolist()
     )
 
-    return top_products
+    return popular.to_dict()
 
 
 # Testing
@@ -29,5 +26,7 @@ if __name__ == "__main__":
 
     print("\nPopular Products:\n")
 
-    for product in popular:
-        print(product)
+    for product, score in popular.items():
+        print(
+            f"Product: {product} | Purchases: {score}"
+        )

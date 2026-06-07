@@ -23,7 +23,7 @@ tfidf_matrix = vectorizer.fit_transform(
 def get_content_recommendations(product_id, top_n=5):
 
     if product_id not in catalog["product_id"].values:
-        return []
+        return {}
 
     idx = catalog[
         catalog["product_id"] == product_id
@@ -38,15 +38,15 @@ def get_content_recommendations(product_id, top_n=5):
 
     top_indices = similarities.argsort()[::-1][1:top_n+1]
 
-    recommendations = []
+    recommendations = {}
 
     for i in top_indices:
 
         row = catalog.iloc[i]
 
-        recommendations.append(
+        recommendations[
             int(row["product_id"])
-        )
+        ] = float(similarities[i])
 
     return recommendations
 
@@ -54,11 +54,14 @@ def get_content_recommendations(product_id, top_n=5):
 # Testing
 if __name__ == "__main__":
 
-    product_id = 1004237
-
-    recs = get_content_recommendations(product_id)
+    recs = get_content_recommendations(
+        1004237
+    )
 
     print("\nContent Recommendations:\n")
 
-    for r in recs:
-        print(r)
+    for product, score in recs.items():
+
+        print(
+            f"Product: {product} | Similarity: {score:.4f}"
+        )

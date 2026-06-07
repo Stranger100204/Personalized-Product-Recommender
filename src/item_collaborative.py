@@ -57,7 +57,10 @@ def get_collaborative_recommendations(product_id, top_n=5):
         reverse=True
     )[:top_n]
 
-    return [product for product, score in recommendations]
+    return {
+        product: score
+        for product, score in recommendations
+    }
 
 
 # Testing
@@ -69,5 +72,7 @@ if __name__ == "__main__":
 
     print("\nCollaborative Recommendations:\n")
 
-    for r in recs:
-        print(r)
+    for product, score in recs.items():
+        print(
+            f"Product: {product} | Common Users: {score}"
+        )
