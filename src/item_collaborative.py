@@ -27,7 +27,7 @@ df = df[df["product_id"].isin(popular_products)]
 def get_collaborative_recommendations(product_id, top_n=5):
 
     if product_id not in df["product_id"].values:
-        return []
+        return {}
 
     users_who_interacted = set(
         df[df["product_id"] == product_id]["user_id"]
