@@ -5,6 +5,13 @@ from src.explainability import get_product_details
 
 st.title("🛒 Personalized Product Recommendation System")
 
+st.markdown(
+    """
+    Discover personalized product recommendations using a hybrid recommendation engine that combines
+    content-based filtering, collaborative filtering, and popularity-based ranking.
+    """
+)
+
 col1, col2, col3 = st.columns(3)
 
 col1.metric(
@@ -60,16 +67,45 @@ if st.button("Get Recommendations"):
 
     st.divider()
 
+    st.subheader("🏆 Top Recommended Products")
+
+    st.caption(
+        "Ranked using a hybrid score combining collaborative, content-based, and popularity signals."
+    )
+
     recommendations = get_hybrid_recommendations(
         int(product_id)
     )
 
-    for item in recommendations:
+    if not recommendations:
+
+        st.error(
+            "Product not found in recommendation database."
+        )
+
+        st.stop()
+
+    for rank, item in enumerate(
+        recommendations,
+        start=1
+    ):
 
         with st.container():
 
+            if rank == 1:
+                badge = "🥇"
+
+            elif rank == 2:
+                badge = "🥈"
+
+            elif rank == 3:
+                badge = "🥉"
+
+            else:
+                badge = "🏆"
+
             st.subheader(
-                f"📦 Product {item['product_id']}"
+                f"{badge} #{rank} Product {item['product_id']}"
             )
 
             col1, col2 = st.columns(2)
@@ -89,7 +125,7 @@ if st.button("Get Recommendations"):
                 )
 
                 st.write(
-                    f"Score: {item['score']}"
+                    f"Hybrid Score: {item['score']:.4f}"
                 )
 
             st.write("Reasons:")
@@ -115,13 +151,4 @@ with st.sidebar:
 
         • Explainable Recommendations
         """
-    )
-
-recommendations = get_hybrid_recommendations(
-    int(product_id)
-)
-
-if not recommendations:
-    st.error(
-        "Product not found in recommendation database."
     )
