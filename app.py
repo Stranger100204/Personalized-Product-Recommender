@@ -2,6 +2,9 @@ import streamlit as st
 
 from src.hybrid import get_hybrid_recommendations
 from src.explainability import get_product_details
+from src.search import ProductSearch
+
+search_engine = ProductSearch()
 
 st.title("🛒 Personalized Product Recommendation System")
 
@@ -29,16 +32,55 @@ col3.metric(
     "314,804"
 )
 
-product_id = st.number_input(
-    "Enter Product ID",
-    value=1004856,
-    step=1
+query = st.text_input(
+    "🔍 Search Product",
+    placeholder="Search by Product ID, Brand or Product Name..."
 )
+
+selected_product_id = None
+
+if query:
+
+    results = search_engine.search_products(query)
+
+    if results.empty:
+
+        st.warning("No matching products found.")
+
+    else:
+
+        options = {}
+
+        for _, row in results.iterrows():
+
+            label = (
+                f"{row['product_name']} | "
+                f"{row['brand'].title()} | "
+                f"{row['category'].title()} | "
+                f"${row['price']:.2f}"
+            )
+
+            options[label] = row["product_id"]
+
+        selected = st.selectbox(
+            "Select Product",
+            list(options.keys())
+        )
+
+        selected_product_id = options[selected]
 
 if st.button("Get Recommendations"):
 
+    if selected_product_id is None:
+
+        st.error(
+            "Please search and select a product first."
+        )
+
+        st.stop()
+
     selected_product = get_product_details(
-        int(product_id)
+        selected_product_id
     )
 
     st.subheader("Selected Product")
@@ -74,7 +116,7 @@ if st.button("Get Recommendations"):
     )
 
     recommendations = get_hybrid_recommendations(
-        int(product_id)
+        selected_product_id
     )
 
     if not recommendations:
