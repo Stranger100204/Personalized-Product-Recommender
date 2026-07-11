@@ -3,8 +3,9 @@ from src.item_collaborative import get_collaborative_recommendations
 from src.popularity import get_popular_products
 from src.explainability import (
     get_product_details,
-    generate_reason
+    generate_explanation
 )
+
 
 def get_hybrid_recommendations(product_id, top_n=10):
 
@@ -81,20 +82,9 @@ def get_hybrid_recommendations(product_id, top_n=10):
 
     for product in all_products:
 
-        content = content_scores.get(
-            product,
-            0
-        )
-
-        collab = collab_scores.get(
-            product,
-            0
-        )
-
-        popularity = popular_scores.get(
-            product,
-            0
-        )
+        content = content_scores.get(product, 0)
+        collab = collab_scores.get(product, 0)
+        popularity = popular_scores.get(product, 0)
 
         hybrid_scores[product] = (
             0.3 * content
@@ -114,25 +104,39 @@ def get_hybrid_recommendations(product_id, top_n=10):
 
     for product, score in final_recommendations[:top_n]:
 
-        details = get_product_details(
-            product
-        )
+        details = get_product_details(product)
 
-        reasons = generate_reason(
-            product,
-            content_scores,
-            collab_scores,
-            popular_scores
+        if details is None:
+            continue
+
+        content = content_scores.get(product, 0)
+        collab = collab_scores.get(product, 0)
+        popularity = popular_scores.get(product, 0)
+
+        explanation = generate_explanation(
+            product_id=product,
+            content_score=content,
+            collab_score=collab,
+            popularity_score=popularity,
+            hybrid_score=round(score, 4)
         )
 
         results.append(
             {
                 "product_id": details["product_id"],
+                "product_name": details["product_name"],
                 "brand": details["brand"],
                 "category": details["category"],
                 "price": details["price"],
+                "price_bucket": details["price_bucket"],
                 "score": round(score, 4),
-                "reasons": reasons
+                # Individual model contribution scores
+                "content_score": explanation["content_score"],
+                "collaborative_score": explanation["collaborative_score"],
+                "popularity_score": explanation["popularity_score"],
+                # Explainability
+                "reason": explanation["reason"],
+                "reasons": explanation["reasons"],
             }
         )
 
@@ -159,6 +163,10 @@ if __name__ == "__main__":
         )
 
         print(
+            f"Name: {item['product_name']}"
+        )
+
+        print(
             f"Brand: {item['brand']}"
         )
 
@@ -170,11 +178,12 @@ if __name__ == "__main__":
             f"Price: {item['price']}"
         )
 
-        print("\nReason:")
+        print("\nScore Breakdown:")
+        print(f"  Content:       {item['content_score']:.4f}")
+        print(f"  Collaborative: {item['collaborative_score']:.4f}")
+        print(f"  Popularity:    {item['popularity_score']:.4f}")
+        print(f"  Hybrid:        {item['score']:.4f}")
 
+        print("\nReason:")
         for reason in item["reasons"]:
             print(f"✓ {reason}")
-
-        print(
-            f"\nHybrid Score: {item['score']}"
-        )
