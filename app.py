@@ -179,6 +179,43 @@ st.markdown(
     /* Hide Streamlit default header decoration */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+
+    /* Match Streamlit top toolbar to dark background */
+    [data-testid="stHeader"],
+    .stAppHeader,
+    header {
+        background-color: #0f0c29 !important;
+        background: #0f0c29 !important;
+    }
+
+    /* Make toolbar buttons/text visible */
+    [data-testid="stHeader"] button,
+    [data-testid="stHeader"] a,
+    [data-testid="stHeader"] span,
+    .stAppHeader button,
+    .stAppHeader span {
+        color: #cbd5e1 !important;
+    }
+
+    /* Select / secondary buttons — dark text on white bg */
+    div.stButton > button {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #d1d5db !important;
+        font-weight: 700 !important;
+    }
+
+    div.stButton > button:hover {
+        background-color: #f3f4f6 !important;
+        border-color: #9ca3af !important;
+        color: #000000 !important;
+    }
+    
+    div.stButton > button p {
+        color: #000000 !important;
+        font-weight: 700 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -302,7 +339,7 @@ def page_search():
 
         else:
             st.markdown(
-                f'<div class="section-header">🎯 Search Results '
+                f'<div class="section-header">Search Results '
                 f'<span style="color:#94a3b8;font-size:0.85rem;font-weight:400;">({len(results)} products found)</span></div>',
                 unsafe_allow_html=True
             )
@@ -345,7 +382,7 @@ def page_search():
     if selected_id and selected_row:
 
         st.markdown(
-            '<div class="section-header">✅ Selected Product</div>',
+            '<div class="section-header">Selected Product</div>',
             unsafe_allow_html=True
         )
 
@@ -370,7 +407,7 @@ def page_search():
         )
 
         # ── Recommend button ──────────────────────────────────────────────────
-        if st.button("🚀 Get Recommendations", type="primary", use_container_width=True):
+        if st.button("Get Recommendations", type="primary", use_container_width=True):
 
             with st.spinner("🤖 Computing hybrid recommendations…"):
                 recommendations = get_hybrid_recommendations(selected_id)
