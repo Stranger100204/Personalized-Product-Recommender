@@ -15,100 +15,155 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Global CSS ─────────────────────────────────────────────────────────────────
+# ── Sidebar ─────────────────────────────────────────────────────────────────────
+
+with st.sidebar:
+    st.markdown(
+        "<h2 style='color:#a78bfa; margin-bottom:0.2rem;'>🛒 ShopMind</h2>"
+        "<p style='color:var(--hero-subtitle-color, #cbd5e1); font-size:0.8rem; margin-top:0;'>Hybrid Recommendation Engine</p>",
+        unsafe_allow_html=True
+    )
+
+    st.divider()
+
+    if "page" not in st.session_state:
+        st.session_state.page = "Search & Recommend"
+
+    # Use buttons for navigation
+    if st.button("🔍 Search & Recommend", use_container_width=True, type="primary" if st.session_state.page == "Search & Recommend" else "secondary"):
+        st.session_state.page = "Search & Recommend"
+        st.rerun()
+    if st.button("📊 Analytics", use_container_width=True, type="primary" if st.session_state.page == "Analytics" else "secondary"):
+        st.session_state.page = "Analytics"
+        st.rerun()
+
+    page = st.session_state.page
+
+    st.divider()
+
+    st.markdown(
+        "<p style='color:var(--text-muted, #cbd5e1); font-size:0.78rem;'>"
+        "Powered by<br>"
+        "• Content-Based Filtering (30%)<br>"
+        "• Collaborative Filtering (50%)<br>"
+        "• Popularity Ranking (20%)"
+        "</p>",
+        unsafe_allow_html=True
+    )
+
+# ── Global CSS & Theme Setup ───────────────────────────────────────────────────
+
+theme_vars = """
+    :root {
+        --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
+        --hero-title-color: #f8fafc;
+        --hero-subtitle-color: #cbd5e1;
+        --card-bg: rgba(255,255,255,0.05);
+        --card-border: rgba(255,255,255,0.1);
+        --card-hover: rgba(167,139,250,0.5);
+        --text-main: #e2e8f0;
+        --text-muted: #94a3b8;
+        --panel-bg: linear-gradient(135deg, rgba(96,165,250,0.1), rgba(167,139,250,0.08));
+        --panel-border: rgba(96,165,250,0.3);
+        --sidebar-bg: rgba(15, 12, 41, 0.95);
+        --sidebar-border: rgba(255,255,255,0.07);
+        --metric-bg: rgba(255,255,255,0.06);
+        --header-bg: #0f0c29;
+    }
+"""
+
 st.markdown(
-    """
+    f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
+    {{theme_vars}}
+
+    html, body, [class*="css"] {{
         font-family: 'Inter', sans-serif;
-    }
+    }}
 
     /* Dark gradient background */
-    .stApp {
-        background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
-    }
+    .stApp, [data-testid="stAppViewContainer"] {{
+        background: var(--bg-gradient) !important;
+    }}
 
     /* Hero title */
-    .hero-title {
+    .hero-title {{
         font-size: 2.8rem;
         font-weight: 800;
-        background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: var(--hero-title-color);
         margin-bottom: 0.2rem;
-    }
+    }}
 
-    .hero-subtitle {
-        color: #cbd5e1;
+    .hero-subtitle {{
+        color: var(--hero-subtitle-color);
         font-size: 1rem;
         margin-bottom: 1.5rem;
-    }
+    }}
 
     /* Product cards */
-    .product-card {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+    .product-card {{
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
         border-radius: 16px;
         padding: 1.1rem 1.2rem;
         margin-bottom: 0.6rem;
         transition: border-color 0.2s;
-    }
+    }}
 
-    .product-card:hover {
-        border-color: rgba(167,139,250,0.5);
-    }
+    .product-card:hover {{
+        border-color: var(--card-hover);
+    }}
 
-    .product-title {
+    .product-title {{
         font-weight: 600;
         font-size: 0.95rem;
-        color: #e2e8f0;
+        color: var(--text-main) !important;
         margin-bottom: 0.25rem;
-    }
+    }}
 
-    .product-meta {
+    .product-meta {{
         font-size: 0.82rem;
-        color: #cbd5e1;
-    }
+        color: var(--text-muted);
+    }}
 
     /* Price bucket badges */
-    .badge {
+    .badge {{
         display: inline-block;
         padding: 2px 10px;
         border-radius: 20px;
         font-size: 0.72rem;
         font-weight: 600;
         margin-top: 4px;
-    }
-    .badge-budget    { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid #34d399; }
-    .badge-midrange  { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid #60a5fa; }
-    .badge-premium   { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid #fb923c; }
-    .badge-luxury    { background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid #c084fc; }
-    .badge-unknown   { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid #94a3b8; }
+    }}
+    .badge-budget    {{ background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid #34d399; }}
+    .badge-midrange  {{ background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid #60a5fa; }}
+    .badge-premium   {{ background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid #fb923c; }}
+    .badge-luxury    {{ background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid #c084fc; }}
+    .badge-unknown   {{ background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid #94a3b8; }}
 
     /* Recommendation cards */
-    .rec-card {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
+    .rec-card {{
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
         border-radius: 16px;
         padding: 1.2rem 1.4rem;
         margin-bottom: 1rem;
-    }
+    }}
 
-    .rec-rank {
+    .rec-rank {{
         font-size: 1.4rem;
         margin-right: 0.4rem;
-    }
+    }}
 
-    .rec-title {
+    .rec-title {{
         font-size: 1rem;
         font-weight: 700;
-        color: #e2e8f0;
-    }
+        color: var(--text-main) !important;
+    }}
 
-    .reason-badge {
+    .reason-badge {{
         display: inline-block;
         padding: 3px 12px;
         border-radius: 20px;
@@ -118,104 +173,99 @@ st.markdown(
         background: rgba(167,139,250,0.15);
         color: #a78bfa;
         border: 1px solid rgba(167,139,250,0.4);
-    }
+    }}
 
     /* Selected product panel */
-    .selected-panel {
-        background: linear-gradient(135deg, rgba(96,165,250,0.1), rgba(167,139,250,0.08));
-        border: 1px solid rgba(96,165,250,0.3);
+    .selected-panel {{
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
         border-radius: 16px;
         padding: 1.2rem 1.4rem;
         margin-bottom: 1.2rem;
-    }
+    }}
 
     /* Section dividers */
-    .section-header {
+    .section-header {{
         font-size: 1.25rem;
         font-weight: 700;
-        color: #f1f5f9;
+        color: var(--text-main);
         margin: 1.5rem 0 0.8rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-    }
+    }}
 
     /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: rgba(15, 12, 41, 0.95) !important;
-        border-right: 1px solid rgba(255,255,255,0.07);
-    }
+    [data-testid="stSidebar"] {{
+        background: var(--sidebar-bg) !important;
+        border-right: 1px solid var(--sidebar-border);
+    }}
 
     /* Metric cards */
-    [data-testid="stMetric"] {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.15);
+    [data-testid="stMetric"] {{
+        background: var(--metric-bg);
+        border: 1px solid var(--card-border);
         border-radius: 12px;
         padding: 0.8rem 1rem;
-    }
+    }}
 
     /* Force metric label and value to be bright */
-    [data-testid="stMetricLabel"] > div {
-        color: #e2e8f0 !important;
+    [data-testid="stMetricLabel"] > div {{
+        color: var(--text-muted) !important;
         font-weight: 600 !important;
-    }
+    }}
 
-    [data-testid="stMetricValue"] > div {
-        color: #f8fafc !important;
+    [data-testid="stMetricValue"] > div {{
+        color: var(--hero-title-color) !important;
         font-weight: 700 !important;
-    }
+    }}
 
     /* Make all regular text visible */
-    p, span, div, label {
-        color: #e2e8f0;
-    }
+    p, span, label, h1, h2, h3, h4, h5, h6, li {{
+        color: var(--text-main) !important;
+    }}
 
     /* Expander text */
-    [data-testid="stExpander"] summary {
-        color: #f1f5f9 !important;
+    [data-testid="stExpander"] summary {{
+        color: var(--text-main) !important;
         font-weight: 600;
-    }
+    }}
 
     /* Hide Streamlit default header decoration */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
 
     /* Match Streamlit top toolbar to dark background */
     [data-testid="stHeader"],
     .stAppHeader,
-    header {
-        background-color: #0f0c29 !important;
-        background: #0f0c29 !important;
-    }
+    header {{
+        background-color: var(--header-bg) !important;
+        background: var(--header-bg) !important;
+    }}
 
     /* Make toolbar buttons/text visible */
     [data-testid="stHeader"] button,
     [data-testid="stHeader"] a,
     [data-testid="stHeader"] span,
     .stAppHeader button,
-    .stAppHeader span {
-        color: #cbd5e1 !important;
-    }
+    .stAppHeader span {{
+        color: var(--text-muted) !important;
+    }}
 
-    /* Select / secondary buttons — dark text on white bg */
-    div.stButton > button {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #d1d5db !important;
-        font-weight: 700 !important;
-    }
-
-    div.stButton > button:hover {
-        background-color: #f3f4f6 !important;
-        border-color: #9ca3af !important;
-        color: #000000 !important;
-    }
-    
-    div.stButton > button p {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-
+    /* Primary buttons */
+    button[kind="primary"], button[data-testid="baseButton-primary"] {{
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+        border: 1px solid #3b82f6 !important;
+    }}
+    button[kind="primary"]:hover, button[data-testid="baseButton-primary"]:hover {{
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+    }}
+    button[kind="primary"] p, button[data-testid="baseButton-primary"] p {{
+        color: #ffffff !important;
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -249,35 +299,6 @@ def load_events(nrows=500_000):
 
 
 search_engine = load_search_engine()
-
-# ── Sidebar ─────────────────────────────────────────────────────────────────────
-
-with st.sidebar:
-    st.markdown(
-        "<h2 style='color:#a78bfa; margin-bottom:0.2rem;'>🛒 ShopMind</h2>"
-        "<p style='color:#cbd5e1; font-size:0.8rem; margin-top:0;'>Hybrid Recommendation Engine</p>",
-        unsafe_allow_html=True
-    )
-
-    st.divider()
-
-    page = st.radio(
-        "Navigation",
-        ["🔍 Search & Recommend", "📊 Analytics"],
-        label_visibility="collapsed"
-    )
-
-    st.divider()
-
-    st.markdown(
-        "<p style='color:#cbd5e1; font-size:0.78rem;'>"
-        "Powered by<br>"
-        "• Content-Based Filtering (30%)<br>"
-        "• Collaborative Filtering (50%)<br>"
-        "• Popularity Ranking (20%)"
-        "</p>",
-        unsafe_allow_html=True
-    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -500,7 +521,7 @@ PLOTLY_THEME = {
 def page_analytics():
 
     st.markdown(
-        '<div class="hero-title">📊 Analytics Dashboard</div>'
+        '<div class="hero-title">Analytics Dashboard</div>'
         '<div class="hero-subtitle">Insights from the product catalog and user interaction data.</div>',
         unsafe_allow_html=True
     )
@@ -733,7 +754,7 @@ def page_analytics():
 #  ROUTER
 # ══════════════════════════════════════════════════════════════════════════════
 
-if page == "🔍 Search & Recommend":
+if page == "Search & Recommend":
     page_search()
 else:
     page_analytics()
